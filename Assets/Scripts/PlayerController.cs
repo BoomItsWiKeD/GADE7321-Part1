@@ -9,7 +9,7 @@ public class PlayerController : MonoBehaviour
     public float speed;
     public float jumpForce;
     public bool canJump;
-
+    
     public Transform orientation;
 
     public float horizontalInput;
@@ -69,10 +69,8 @@ public class PlayerController : MonoBehaviour
         playerRB.velocity = new Vector3(playerRB.velocity.x, 0f, playerRB.velocity.z);
         
         playerRB.AddForce(transform.up * jumpForce, ForceMode.Impulse);
-
         
         StartCoroutine(ResetJump());
-        
     }
 
     private IEnumerator ResetJump()
@@ -81,4 +79,5 @@ public class PlayerController : MonoBehaviour
         yield return new WaitForSeconds(1.8f); //jump cd
         canJump = true;
     }
+    
 }
