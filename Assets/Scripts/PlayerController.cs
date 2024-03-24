@@ -1,34 +1,84 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    public CharacterController CharacterController;
-    public int speed;
+    public Rigidbody playerRB;
+    public float speed;
+    public float jumpForce;
+    public bool canJump;
 
     public Transform orientation;
-    public float sensX;
-    public float sensY;
-    public float xRotation;
-    public float yRotation;
 
+    public float horizontalInput;
+    public float verticalInput;
+    public Vector3 moveDirection;
     void Start()
     {
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
+        playerRB = GetComponent<Rigidbody>();
+        playerRB.freezeRotation = true;
         speed = 5;
+        jumpForce = 13f;
+        canJump = true;
     }
     void Update()
     {
-        float mouseX = Input.GetAxisRaw("Mouse X") * Time.deltaTime * sensX;
-        float mouseY = Input.GetAxisRaw("Mouse Y") * Time.deltaTime * sensY;
-
-        yRotation += mouseX;
-        xRotation -= mouseY;
+        if (Input.GetKeyDown(KeyCode.Space) && canJump == true)
+        {
+            Jump();
+        }
         
-        Vector3 movement = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
+        PlayerInput();
+        LimitSpeed();
+    }
 
-        CharacterController.Move(movement * Time.deltaTime * speed);
+    private void FixedUpdate()
+    {
+        PlayerMovement();
+    }
+
+    private void PlayerInput()
+    {
+        horizontalInput = Input.GetAxisRaw("Horizontal");
+        verticalInput = Input.GetAxisRaw("Vertical");
+    }
+
+    private void PlayerMovement()
+    {
+        moveDirection = orientation.forward * verticalInput + orientation.right * horizontalInput;
+        
+        playerRB.AddForce(moveDirection.normalized * speed * 10f, ForceMode.Force);
+    }
+
+    private void LimitSpeed()
+    {
+        Vector3 flatVel = new Vector3(playerRB.velocity.x, 0f, playerRB.velocity.z);
+
+        if (flatVel.magnitude > speed)
+        {
+            Vector3 limitedVel = flatVel.normalized * speed;
+            playerRB.velocity = new Vector3(limitedVel.x, playerRB.velocity.y, limitedVel.z);
+        }
+    }
+
+    private void Jump()
+    {
+        //reset players y velocity for consistent jump height
+        playerRB.velocity = new Vector3(playerRB.velocity.x, 0f, playerRB.velocity.z);
+        
+        playerRB.AddForce(transform.up * jumpForce, ForceMode.Impulse);
+
+        
+        StartCoroutine(ResetJump());
+        
+    }
+
+    private IEnumerator ResetJump()
+    {
+        canJump = false;
+        yield return new WaitForSeconds(1.8f); //jump cd
+        canJump = true;
     }
 }
