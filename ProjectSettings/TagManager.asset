@@ -8,6 +8,10 @@ TagManager:
   - RedFlag
   - BlueFlagHome
   - RedFlagHome
+  - JumpPowerUp
+  - SpeedPowerUp
+  - SpeedPowerUp2
+  - Enemy
   layers:
   - Default
   - TransparentFX
